@@ -1,5 +1,4 @@
 # Virtual environment files
-.env
 env/
 __pycache__/
 
@@ -46,3 +45,6 @@ test.log
 pip-wheel.md5
 .pycodestyle.cache.json
 pylint_report.txt
+
+# Environment variables
+.env
