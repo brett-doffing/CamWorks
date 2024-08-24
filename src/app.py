@@ -3,7 +3,6 @@ from Camera import Camera
 import cv2
 import numpy as np
 from SiftManager import SiftManager
-import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +15,6 @@ def main():
     grid_image = np.zeros((480 * 2, 640 * 2, 3), dtype=np.uint8)
     frames_dict = {}
     sift_manager = SiftManager()
-    sift_time = None
 
     for addr, camid in zip(ADDRESSES, CAM_IDS):
         camera = Camera(addr, camid)
@@ -35,18 +33,6 @@ def main():
         frame3 = frames_dict.get(CAM_IDS[2], np.zeros((480, 640, 3), dtype=np.uint8))
         frame4 = frames_dict.get(CAM_IDS[3], np.zeros((480, 640, 3), dtype=np.uint8))
 
-        # if sift_time is None:
-        #     pass
-        # elif time.time() - sift_time < 0.5:
-        #     sift_manager.add_frame(CAM_IDS[0], frame1)
-        #     sift_manager.add_frame(CAM_IDS[1], frame2)
-        #     sift_manager.add_frame(CAM_IDS[2], frame3)
-        #     sift_manager.add_frame(CAM_IDS[3], frame4)
-        # else:
-        #     print('Processing SIFT')
-        #     sift_time = None
-        #     sift_manager.process_frames()
-
         # # Assign the frames to the grid image without padding
         grid_image[:480, :640] = frame1  # Top-left
         grid_image[:480, 640:1280] = frame2  # Top-right
@@ -60,13 +46,11 @@ def main():
             break
         if cv2.waitKey(1) & 0xFF == ord('c'):
             # Perform SIFT algorithm
-            print('Collecting Frames')
             sift_manager.add_frame(CAM_IDS[0], frame1)
             sift_manager.add_frame(CAM_IDS[1], frame2)
             sift_manager.add_frame(CAM_IDS[2], frame3)
             sift_manager.add_frame(CAM_IDS[3], frame4)
             sift_manager.process_frames()
-            # sift_time = time.time()
 
     # Stop all camera instances and close windows
     for camera in cameras:
