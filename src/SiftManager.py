@@ -13,7 +13,6 @@ class SiftManager:
         features = []
         for _, frame in self.cameras.items():
             kp, des = self.get_features(frame)
-            # print(type(kp), type(des))
             features.append((kp, des))
 
         self.self_calibrate(features)
@@ -44,8 +43,8 @@ class SiftManager:
                 # Select the first valid essential matrix
                 E = np.dot(np.dot(Ws[0], F), Ws[0].T)
 
-                print(f"Fundamental Matrix: {F}")
-                print(f"Essential Matrix: {E}")
+                # print(f"Fundamental Matrix: {F}")
+                # print(f"Essential Matrix: {E}")
 
 
     def get_features(self, frame):

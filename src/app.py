@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 def main():
     cameras = []
     ADDRESSES = os.getenv("ADDRESSES").split(" ")
