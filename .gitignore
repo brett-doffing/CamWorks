@@ -1,0 +1,47 @@
+# Virtual environment files
+env/
+__pycache__/
+
+# IDE-specific files
+.vscode/
+.pydevproject
+.project
+.settings/
+
+# Bytecode files
+__pycache__/
+
+# Temporary files
+*.egg-info
+dist/
+build/
+
+# Build files
+target/
+
+# Other
+/.vscode/extensions.json
+.DS_Store
+
+# Python-specific
+*.pyc
+*.pyo
+*.class
+
+# IDE-specific (VSCode, PyCharm, etc.)
+.vscode/tasks.json
+.vscode/launch.json
+.pycharm/
+
+# Test reports and logs
+test-results/
+coverage.xml
+test.log
+
+# Coverage report files
+.coverage*
+
+# Other tools and libraries
+pip-wheel.md5
+.pycodestyle.cache.json
+pylint_report.txt

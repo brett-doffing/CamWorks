@@ -1,0 +1,69 @@
+import os
+from Camera import Camera
+import cv2
+import numpy as np
+# from SiftManager import SiftManager
+import time
+
+
+def main():
+    clients = []
+    addresses = os.environ.get("ADDRESSES").split(" ")
+    camIDs = os.environ.get("CAM_IDS").split(" ")
+    grid_image = np.zeros((480 * 2, 640 * 2, 3), dtype=np.uint8)
+    frames_dict = {}
+    # sift_manager = SiftManager()
+    sift_time = None
+
+    for addr, camid in zip(addresses, camIDs):
+        client = Camera(addr, camid)
+        clients.append(client)
+
+    while True:
+        # Fetch the latest frame from each camera
+        for i, client in enumerate(clients):
+            frame = client.get_latest_frame()
+            if frame is not None:
+                frames_dict[camIDs[i]] = frame  # Store latest frame in dictionary
+        
+        # Get the latest frames from the dictionary
+        frame1 = frames_dict.get(camIDs[0], np.zeros((480, 640, 3), dtype=np.uint8))
+        frame2 = frames_dict.get(camIDs[1], np.zeros((480, 640, 3), dtype=np.uint8))
+        frame3 = frames_dict.get(camIDs[2], np.zeros((480, 640, 3), dtype=np.uint8))
+        frame4 = frames_dict.get(camIDs[3], np.zeros((480, 640, 3), dtype=np.uint8))
+
+        # if sift_time is None:
+        #     pass
+        # elif time.time() - sift_time < 0.5:
+        #     sift_manager.add_frame(camIDs[0], frame1)
+        #     sift_manager.add_frame(camIDs[1], frame2)
+        #     sift_manager.add_frame(camIDs[2], frame3)
+        #     sift_manager.add_frame(camIDs[3], frame4)
+        # else:
+        #     print('Processing SIFT')
+        #     sift_time = None
+        #     sift_manager.process_frames()
+
+        # # Assign the frames to the grid image without padding
+        grid_image[:480, :640] = frame1  # Top-left
+        grid_image[:480, 640:1280] = frame2  # Top-right
+        grid_image[480:960, :640] = frame3  # Bottom-left
+        grid_image[480:960, 640:1280] = frame4  # Bottom-right
+        
+        cv2.imshow('Camera Feed', grid_image)
+        
+        # Break the loop on pressing 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv2.waitKey(1) & 0xFF == ord('c'):
+            # Perform SIFT algorithm
+            print('Collecting Frames')
+            sift_time = time.time()
+
+    # Stop all ZMQClient instances and close windows
+    for client in clients:
+        client.stop()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
