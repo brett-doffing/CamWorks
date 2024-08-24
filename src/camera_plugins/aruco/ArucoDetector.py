@@ -23,11 +23,5 @@ class ArucoDetector(Plugin):
         # Draw detected markers
         for i, corner in enumerate(corners):
             cv2.drawContours(frame, [corner.astype(np.int32)], -1, (0, 255, 0), 2)
-        
-        # Draw marker ID numbers
-        # font = cv2.FONT_HERSHEY_SIMPLEX
-        # for i, id in enumerate(ids):
-        #     x, y = corner[i][0] + corner[i][1] // 2, corner[i][3] + corner[i][4] // 2
-        #     cv2.putText(image, str(id), (x, y), font, .5, (255, 0, 0), 2)
 
         return frame
