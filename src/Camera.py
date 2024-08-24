@@ -4,11 +4,12 @@ import queue
 import cv2
 import numpy as np
 from camera_plugins.ArucoDetector import ArucoDetector   # Import the ArucoDetector class
+from camera_plugins.mediapipe.FaceDetector import FaceDetector
 
 class Camera(object):
     def __init__(self, address, camID):
         self._context = zmq.Context()
-        self._plugin = ArucoDetector()  # Plugin instance will be set here
+        self._plugin = FaceDetector()  # Plugin instance will be set here
         try:
             self.address = address
             self.camID = camID
