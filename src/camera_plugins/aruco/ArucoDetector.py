@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from .Plugin import Plugin
+from ..Plugin import Plugin
 
 class ArucoDetector(Plugin):
     def __init__(self):

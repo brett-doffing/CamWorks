@@ -3,7 +3,7 @@ import threading
 import queue
 import cv2
 import numpy as np
-from camera_plugins.ArucoDetector import ArucoDetector   # Import the ArucoDetector class
+from camera_plugins.aruco.ArucoDetector import ArucoDetector   # Import the ArucoDetector class
 from camera_plugins.mediapipe.FaceDetector import FaceDetector
 
 class Camera(object):
