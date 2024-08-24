@@ -16,14 +16,16 @@ class SiftManager:
         features = []
         camera0_length = len(list(self.cameras.values())[0])  # Get length of frames for camera 0
         for i in range(camera0_length):
-            for camera, frames in self.cameras.items():
+            for _, frames in self.cameras.items():
                 kp, des = self.get_features(frames[i])
+                # print(type(kp), type(des))
                 features.append((kp, des))
 
-        points3d, points2d = self.self_calibrate(features)
+        self.self_calibrate(features)
+        # points3d, points2d = self.self_calibrate(features)
 
-        camera_poses = []
-        intrinsics = []
+        # camera_poses = []
+        # intrinsics = []
 
     def self_calibrate(self, features):
         points3d = []
@@ -35,25 +37,35 @@ class SiftManager:
                 matches = self.sift.match_features(features[i], features[j]) # NOTE: doesn't match first and last
 
                 # Compute the fundamental matrix between the two cameras
-                src_pts = np.float32([features[i][m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-                dst_pts = np.float32([features[j][m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+                src_pts = np.float32([features[i][0][m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+                dst_pts = np.float32([features[j][0][m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
                 F, _ = cv2.findFundamentalMat(src_pts, dst_pts, cv2.FM_LMEDS)
 
-                # Compute the essential matrix between the two cameras
-                E = cv2.estimateEssentialMatrix(F, src_pts, dst_pts, np.zeros((3,)))
+                # Decompose the fundamental matrix to get essential matrices
+                Ws = []
+                for k in range(len(F)):
+                    W = np.array([[0, -F[k][2], F[k][1]], [F[k][2], 0, -F[k][0]], [-F[k][1], F[k][0], 0]])
+                    U, _, _ = np.linalg.svd(W)
+                    Ws.append(U)
 
-                # Triangulate points from the fundamental and essential matrices
-                triangulated_points = []
-                for k in range(len(src_pts)):
-                    point3d = cv2.triangulatePoints(E, F, src_pts[k], dst_pts[k])
-                    triangulated_points.append(point3d)
+                # Select the first valid essential matrix
+                E = np.dot(np.dot(Ws[0], F), Ws[0].T)
 
-                # Store the 3D points and 2D projections
-                points3d.extend(triangulated_points)
-                points2d.extend([features[i][0][m.queryIdx].pt for m in matches])
-                points2d.extend([features[j][0][m.trainIdx].pt for m in matches])
+                print(f"Fundamental Matrix: {F}")
+                print(f"Essential Matrix: {E}")
 
-                return points3d, points2d
+        #         # Triangulate points from the fundamental and essential matrices
+        #         triangulated_points = []
+        #         for k in range(len(src_pts)):
+        #             point3d = cv2.triangulatePoints(E, F, src_pts[k], dst_pts[k])
+        #             triangulated_points.append(point3d)
+
+        #         # Store the 3D points and 2D projections
+        #         points3d.extend(triangulated_points)
+        #         points2d.extend([features[i][0][m.queryIdx].pt for m in matches])
+        #         points2d.extend([features[j][0][m.trainIdx].pt for m in matches])
+
+        # return points3d, points2d
 
 
     def get_features(self, frame):
@@ -71,8 +83,11 @@ class SIFT:
         kp, des = self.sift.detectAndCompute(image, None)
         return kp, des
 
-    def match_features(self, des1, des2):
-        matches = self.matcher.knnMatch(np.ascontiguousarray(des1), np.ascontiguousarray(des2), k=2)
+    def match_features(self, features1, features2):
+        des1 = features1[1]
+        des2 = features2[1]
+        
+        matches = self.matcher.knnMatch(np.array(des1), np.array(des2), k=2)
         good_matches = []
         for m in matches:
             if len(m) == 2 and m[0].distance < m[1].distance * 0.7: # threshold
