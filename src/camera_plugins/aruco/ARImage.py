@@ -14,10 +14,6 @@ class ARImage(Plugin):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = self.detector.detectMarkers(gray)
 
-        # Draw detected markers
-        for i, corner in enumerate(corners):
-            cv2.drawContours(frame, [corner.astype(np.int32)], -1, (0, 255, 0), 2)
-
         # Overlay the marker with an image
         for i, corner in enumerate(corners):
             # Get the bounding box of the marker
