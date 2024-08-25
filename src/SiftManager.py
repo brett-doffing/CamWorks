@@ -17,10 +17,16 @@ class SiftManager:
 
         self.self_calibrate(features)
 
-    def self_calibrate(self, features):
-        points3d = []
-        points2d = []
+    def display_matches(self, features):
+        for i in range(len(features)):
+            for j in range(i+1, len(features)):
+                # Match feature points between images
+                matches = self.sift.match_features(features[i], features[j])
 
+                kp1 = features[i][0]
+                kp2 = features[j][0]
+
+    def self_calibrate(self, features):
         for i in range(len(features)):
             for j in range(i+1, len(features)):
                 # Match feature points between images
@@ -29,29 +35,30 @@ class SiftManager:
                 # Compute the fundamental matrix between the two cameras
                 kp1 = features[i][0]
                 kp2 = features[j][0]
-                src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-                dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-                F, _ = cv2.findFundamentalMat(src_pts, dst_pts, cv2.FM_LMEDS)
-
-                # Decompose the fundamental matrix to get essential matrices
-                Ws = []
-                for k in range(len(F)):
-                    W = np.array([[0, -F[k][2], F[k][1]], [F[k][2], 0, -F[k][0]], [-F[k][1], F[k][0], 0]])
-                    U, _, _ = np.linalg.svd(W)
-                    Ws.append(U)
-
-                # Select the first valid essential matrix
-                E = np.dot(np.dot(Ws[0], F), Ws[0].T)
-
-                # print(f"Fundamental Matrix: {F}")
-                # print(f"Essential Matrix: {E}")
-
+                self.compute_fundamental_matrix(kp1, kp2, matches)
 
     def get_features(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         kp, des = self.sift.detect_and_compute(gray)
         return kp, des
+    
+    def compute_fundamental_matrix(self, kp1, kp2, matches):
+        src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+        dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+        F, _ = cv2.findFundamentalMat(src_pts, dst_pts, cv2.FM_LMEDS)
 
+        # Decompose the fundamental matrix to get essential matrices
+        Ws = []
+        for k in range(len(F)):
+            W = np.array([[0, -F[k][2], F[k][1]], [F[k][2], 0, -F[k][0]], [-F[k][1], F[k][0], 0]])
+            U, _, _ = np.linalg.svd(W)
+            Ws.append(U)
+
+        # Select the first valid essential matrix
+        E = np.dot(np.dot(Ws[0], F), Ws[0].T)
+
+        print(f"Fundamental Matrix: {F}")
+        print(f"Essential Matrix: {E}")
 
 class SIFT:
     def __init__(self):
