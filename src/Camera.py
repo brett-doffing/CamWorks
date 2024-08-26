@@ -42,7 +42,7 @@ class Camera(object):
                 frame = cv2.imdecode(np.frombuffer(frame_data, np.uint8), cv2.IMREAD_COLOR)
                 # Utilize loaded plugin
                 if self._plugin is not None:
-                    frame = self._plugin.run(frame)
+                    frame = self._plugin.run(frame, self.camID)
 
                 self._frame_queue.put(frame)  # Put the frame in the queue
             except zmq.ZMQError as e:

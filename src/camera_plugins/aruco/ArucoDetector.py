@@ -7,7 +7,7 @@ class ArucoDetector(Plugin):
         self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_250)  # For 5x5 markers with IDs from 0-249
         self.parameters = cv2.aruco.DetectorParameters()
         self.detector = cv2.aruco.ArucoDetector(self.aruco_dict, self.parameters)
-    def run(self, frame):
+    def run(self, frame, camID):
         """
         Detects aruco markers in the input image and draws them on the original image.
 

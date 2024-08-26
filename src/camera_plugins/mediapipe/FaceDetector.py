@@ -20,7 +20,7 @@ class FaceDetector(Plugin):
             max_num_faces=1
         )
 
-    def run(self, frame):
+    def run(self, frame, camID):
         """
         Detect facial landmarks from an image and draw them on the image.
 

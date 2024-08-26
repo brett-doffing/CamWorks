@@ -10,7 +10,7 @@ class ARImage(Plugin):
         # Load the overlay image (e.g. a logo or icon)
         self.overlay_image = cv2.imread('./src/camera_plugins/aruco/test.png', cv2.IMREAD_UNCHANGED)
 
-    def run(self, frame):
+    def run(self, frame, camID):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         corners, ids, rejectedImgPoints = self.detector.detectMarkers(gray)
 
