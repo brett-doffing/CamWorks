@@ -2,7 +2,8 @@ import os
 from Camera import Camera
 import cv2
 import numpy as np
-from SiftManager import SiftManager
+from SIFT import SIFT
+from StereoCalibrate import StereoCalibrate
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,7 +14,8 @@ def main():
     CAM_IDS = os.getenv("CAM_IDS").split(" ")
     grid_image = np.zeros((480 * 2, 640 * 2, 3), dtype=np.uint8)
     frames_dict = {}
-    sift_manager = SiftManager()
+    sift = SIFT()
+    stereoCalibrate = StereoCalibrate()
 
     for addr, camid in zip(ADDRESSES, CAM_IDS):
         camera = Camera(addr, camid)
@@ -44,12 +46,9 @@ def main():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if cv2.waitKey(1) & 0xFF == ord('c'):
-            # Perform SIFT algorithm
-            sift_manager.add_frame(CAM_IDS[0], frame1)
-            sift_manager.add_frame(CAM_IDS[1], frame2)
-            sift_manager.add_frame(CAM_IDS[2], frame3)
-            sift_manager.add_frame(CAM_IDS[3], frame4)
-            sift_manager.process_frames()
+            src_pts, dst_pts, matches_img = sift.find_corresponding_points(frame1, frame2)
+            cv2.imshow('Matches', matches_img)
+
 
     # Stop all camera instances and close windows
     for camera in cameras:
