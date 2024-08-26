@@ -15,7 +15,6 @@ def main():
     grid_image = np.zeros((480 * 2, 640 * 2, 3), dtype=np.uint8)
     frames_dict = {}
     sift = SIFT()
-    stereoCalibrate = StereoCalibrate()
 
     for addr, camid in zip(ADDRESSES, CAM_IDS):
         camera = Camera(addr, camid)
