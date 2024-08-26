@@ -59,11 +59,10 @@ class ChessboardDetector(Plugin):
             # If so, check if a chessboard was detected
             if ret:
                 # Write frames to disk when a chessboard is detected
-                save_dir = "saved_images"
-                now = time.time()
+                save_dir = f"saved_images/{camID}"
                 if not os.path.exists(save_dir):
                     os.makedirs(save_dir)  # Create the save directory if it doesn't exist
-                filename = os.path.join(save_dir, f"{camID}-{now}.jpg")  # Generate a unique filename using timestamp
+                filename = os.path.join(save_dir, f"{time.time()}.jpg")  # Generate a unique filename using timestamp
                 cv2.imwrite(filename, frame)  # Save the frame to disk
 
             self.countdown_start_time = None  # Reset countdown
