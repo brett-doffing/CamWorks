@@ -1,23 +1,33 @@
+import os
 import zmq
 import threading
 import queue
 import cv2
 import numpy as np
-from camera_plugins.aruco.ArucoDetector import ArucoDetector   # Import the ArucoDetector class
+from dotenv import load_dotenv
+
+from camera_plugins.aruco.ArucoDetector import ArucoDetector
 from camera_plugins.mediapipe.FaceDetector import FaceDetector
+from camera_plugins.aruco.ARImage import ARImage
+from camera_plugins.aruco.ARBox import ARBox
+from camera_plugins.ChessboardDetector import ChessboardDetector
+
+load_dotenv()
 
 class Camera(object):
     def __init__(self, address, camID):
         self._context = zmq.Context()
-        self._plugin = FaceDetector()  # Plugin instance will be set here
+        self._plugin = None
         try:
             self.address = address
             self.camID = camID
+            
             self._socket = self.create_socket(self._context, self.address)
             self._frame_queue = queue.Queue()  # Queue for thread-safe frame updates
             self._running = threading.Event()
             self._thread = threading.Thread(target=self.receiveFeed, args=(self._socket,))
             self._thread.start()
+            self.mtx, self.dist = self.get_intrinsics()
 
             # self.load_plugin('ArucoDetector')  # Replace with the desired plugin
         except Exception as e:
@@ -65,3 +75,13 @@ class Camera(object):
             self._plugin = getattr(module, name.capitalize())()  # Get an instance of the plugin class and set it as an attribute
         except ImportError as e:
             print(f"Failed to load plugin {name}: {e}")
+
+    def get_intrinsics(self):
+        path = os.getenv("INTRINSICS_PATH") + f"/{self.camID}.npz"
+        calibration_data = np.load(path)
+        mtx = calibration_data["mtx"]
+        dist = calibration_data["dist"]
+        print(f"{self.camID} mtx:\n{mtx}")
+        print(f"{self.camID} dist:\n{dist}")
+        return mtx, dist
+
