@@ -49,11 +49,6 @@ class ChessboardDetector(Plugin):
 
         elapsed_time = time.time() - self.countdown_start_time
 
-        # Display countdown on frame
-        font = cv2.FONT_HERSHEY_SIMPLEX  # Choose a font for displaying text
-        height, width, _ = frame.shape  # Get the dimensions of the frame
-        cv2.putText(frame, f"{int(self.countdown_time - elapsed_time + 1)}", (width // 2 - 40, height // 2), font, 4, (0, 255, 0), 4)  # Display countdown text
-
         # Check if countdown has ended
         if elapsed_time >= self.countdown_time:
             # If so, check if a chessboard was detected
@@ -66,6 +61,11 @@ class ChessboardDetector(Plugin):
                 cv2.imwrite(filename, frame)  # Save the frame to disk
 
             self.countdown_start_time = None  # Reset countdown
+
+        # Display countdown on frame
+        font = cv2.FONT_HERSHEY_SIMPLEX  # Choose a font for displaying text
+        height, width, _ = frame.shape  # Get the dimensions of the frame
+        cv2.putText(frame, f"{int(self.countdown_time - elapsed_time + 1)}", (width // 2 - 40, height // 2), font, 4, (0, 255, 0), 4)  # Display countdown text
 
         # Draw chessboard corners on the frame if detected
         frame = cv2.drawChessboardCorners(frame, self.chessboard_size, corners, ret)
