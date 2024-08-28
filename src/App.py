@@ -3,7 +3,6 @@ from Camera import Camera
 import cv2
 import numpy as np
 from SIFT import SIFT
-from StereoCalibrate import StereoCalibrate
 from dotenv import load_dotenv
 
 load_dotenv()
